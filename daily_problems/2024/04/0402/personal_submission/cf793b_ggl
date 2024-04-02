@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for(int &i : a)
+        cin >> i;
+    vector<vector<pair<int, int>>> g(n);
+    for (int i = 1; i < n; i++) {
+        int fa, w;
+        cin >> fa >> w;
+        g[fa - 1].push_back({i, w});
+    }
+
+    vector<int> dist(n, 0);
+    vector<long long> diff(n, 0);
+    vector<int> path;
+    function<void(int)> dfs = [&](int u) {
+        int l = 0, r = path.size();
+        while (l < r) {
+            int m = l + r >> 1;
+            if (dist[path[m]] >= dist[u] - a[u]) {
+                r = m;
+            } else {
+                l = m + 1;
+            }
+        }
+        if (l) {
+            diff[path[l - 1]]--;
+        }
+        if (path.size()) {
+            diff[path.back()]++;
+        }
+        path.push_back(u);
+        for (const auto& [v,w] : g[u]) {
+            dist[v] = dist[u] + w;
+            dfs(v);
+            diff[u] += diff[v];
+        }
+        path.pop_back();
+    };
+    dfs(0);
+    for (int i : diff) {
+        cout << i << " ";
+    }
+    cout << endl;
+    return 0;
+}
